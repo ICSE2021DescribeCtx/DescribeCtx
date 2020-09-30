@@ -1,6 +1,7 @@
 # DescribeCtx
 ## Introduction
 This is the implementation of DescribeCtx
+![](https://github.com/ICSE2021DescribeCtx/)
 ## Requirements
 * Java version: 1.8.0_181
 * Python version: 3.7.2
