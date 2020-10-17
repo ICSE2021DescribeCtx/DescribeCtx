@@ -16,13 +16,13 @@ import keras.backend as K
 from numpy import array
 from numpy import asarray
 from numpy import zeros
-#data dir
-data=pd.read_csv('',nrows=372)
+
+data=pd.read_csv('/Users/shaoyang/Desktop/API_exp/sampletest/data.csv',nrows=372)
 data['des'] = data['des'].apply(lambda x : '_START_ '+ x + ' _END_')
 
 embeddings_dictionary = dict()
-#glove embedding dir
-glove_file = open(r'', encoding = 'utf8')
+
+glove_file = open(r'/Users/shaoyang/Downloads/glove.6B/glove.6B.100d.txt', encoding = 'utf8')
 
 for line in glove_file:
 	records = line.split()
@@ -92,7 +92,7 @@ encoder_pp_in, _, _, _, _ = Bidirectional(LSTM(dim, return_sequences = True, ret
 encoder_ui_in, _, _, _, _ = Bidirectional(LSTM(dim, return_sequences = True, return_state = True))(encoder_ui_emb)
 encoder_cg_in, _, _, _, _ = Bidirectional(LSTM(dim, return_sequences = True, return_state = True))(encoder_cg_emb)
 
-# encoder_ui_in, encoder_cg_in = CoAttentionPara(dim_k = 100, name="feature")([encoder_ui_in, encoder_cg_in])
+encoder_ui_in, encoder_cg_in = CoAttentionPara(dim_k = 100, name="feature")([encoder_ui_in, encoder_cg_in])
 encoder_in = Concatenate()([encoder_pp_in, encoder_ui_in, encoder_cg_in])
 
 encoder_lstm1 = Bidirectional(LSTM(dim,return_sequences=True,return_state=True, dropout = 0.1))
@@ -125,8 +125,7 @@ model = Model([encoder_pp_inputs, encoder_ui_inputs, encoder_cg_inputs, decoder_
 model.summary()
 
 model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy')
-#output model dir
-output_model_file = ''
+output_model_file = '/Users/shaoyang/Desktop/API_exp/sampletest/model/model/checkpoint-{epoch:02d}e-val_loss_{val_loss:.2f}.hdf5'
 checkpoint = ModelCheckpoint(output_model_file, monitor='val_loss', verbose=1, save_best_only=True)
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
 history = model.fit([x_pp_tr, x_ui_tr, x_cg_tr, y_tr[:,:-1]], y_tr.reshape(y_tr.shape[0],y_tr.shape[1], 1)[:,1:], epochs = 30, callbacks = [checkpoint, es], batch_size = 1, validation_data = ([x_pp_val, x_ui_val, x_cg_val, y_val[:,:-1]],y_val.reshape(y_val.shape[0],y_val.shape[1], 1)[:,1:]))
